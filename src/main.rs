@@ -1,3 +1,9 @@
+mod palindrome;
+mod adjacent_product;
+mod shape_area;
+
 fn main() {
-    println!("Hello, world!");
+    //palindrome::run();
+    //adjacent_product::run();
+    //shape_area::run();
 }
