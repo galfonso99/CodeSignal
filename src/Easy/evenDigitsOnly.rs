@@ -1,0 +1,12 @@
+/* Check if all digits of the given integer are even.
+
+Example
+
+For n = 248622, the output should be
+evenDigitsOnly(n) = true;
+For n = 642386, the output should be
+evenDigitsOnly(n) = false. */
+
+fn evenDigitsOnly(n: i32) -> bool {
+    n.to_string().chars().all(|d| d.to_digit(10).unwrap()%2==0)
+}
