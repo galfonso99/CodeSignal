@@ -1,17 +1,3 @@
-#![allow(clippy::needless_return)]
-
-mod adjacent_product;
-mod befunge_93;
-mod palindrome;
-mod pipes_game;
-mod shape_area;
-
-fn main() {
-    //palindrome::run();
-    //adjacent_product::run();
-    //shape_area::run();
-}
-
 use std::collections::VecDeque;
 #[derive(Debug)]
 struct Snake {
@@ -34,7 +20,7 @@ impl Snake {
         board[i][j] = '.';
     }
 
-    fn turn_right(&mut self) {
+    fn turn_right(&mut self, board: &mut [Vec<char>]) {
         let current_dir = self.direction;
         match current_dir {
             '^' => self.direction = '>',
@@ -43,9 +29,11 @@ impl Snake {
             'v' => self.direction = '<',
             _ => (),
         }
+        let (i, j) = self.positions[0];
+        board[i][j] = self.direction;
     }
 
-    fn turn_left(&mut self) {
+    fn turn_left(&mut self, board: &mut [Vec<char>]) {
         let current_dir = self.direction;
         match current_dir {
             '^' => self.direction = '<',
@@ -54,6 +42,8 @@ impl Snake {
             'v' => self.direction = '>',
             _ => (),
         }
+        let (i, j) = self.positions[0];
+        board[i][j] = self.direction;
     }
 
     fn can_move(&mut self, board: &mut [Vec<char>]) -> bool {
@@ -82,8 +72,6 @@ fn solution(mut board: Vec<Vec<char>>, commands: String) -> Vec<Vec<char>> {
     // Get initial board configuration
     let (initial_direction, initial_positions) = handle_initial_configuration(&board);
     let mut snake = Snake::new(initial_direction, initial_positions);
-    println!("{snake:?}");
-    // println!("{}", snake.direction);
     walk_the_snake(&mut board, &commands, snake);
     board
 }
@@ -92,8 +80,6 @@ fn handle_initial_configuration(board: &[Vec<char>]) -> (char, VecDeque<(usize, 
     let dir_pos = get_initial_direction_pos(&board);
     let initial_direction = board[dir_pos.0][dir_pos.1];
     let mut initial_positions: VecDeque<(usize, usize)> = VecDeque::from([dir_pos]);
-    // let mut initial_positions: VecDeque<(usize, usize)> = VecDeque::from([(1, 2), (1, 3), (2, 3), (2, 2)]);
-
     set_snake_positions(board, &mut initial_positions, dir_pos);
     (initial_direction, initial_positions)
 }
@@ -108,8 +94,8 @@ fn walk_the_snake(board: &mut [Vec<char>], commands: &str, mut snake: Snake) {
                 }
                 snake.move_forward(board);
             }
-            'R' => snake.turn_right(),
-            'L' => snake.turn_left(),
+            'R' => snake.turn_right(board),
+            'L' => snake.turn_left(board),
             _ => (),
         }
     }
@@ -135,7 +121,6 @@ fn get_initial_direction_pos(board: &[Vec<char>]) -> (usize, usize) {
 
 fn set_snake_positions(board: &[Vec<char>], positions: &mut VecDeque<(usize, usize)>, dir_pos: (usize, usize)) {
     let mut prev = (dir_pos.0, dir_pos.1);
-    // Make sure that the next body part is not a part already in the positions array
     for _ in 0.. {
         if possible_tail(board, positions, prev, (-1, 0)) && board[prev.0 - 1][prev.1] == '*' {
             positions.push_back((prev.0 - 1, prev.1));
@@ -165,13 +150,3 @@ fn possible_tail(board: &[Vec<char>], positions: &VecDeque<(usize, usize)>, prev
 fn within_board(board: &[Vec<char>], y: i32, x: i32) -> bool {
     x >= 0 && x < board[0].len() as i32 && y >= 0 && y < board.len() as i32
 }
-
-// TOP LEFT RIGHT DOWN
-
-// Keep a Snake object that has a head, and a tail array with their positions on the canvas
-// For every instruction update the canvas by either changing direction (<, >, ^, v) of the head, or moving forward
-// by updating the head and removing the very last part of the tail
-// Make sure to also update the Snake object by updating the position of all the parts when moving forward
-// In this way the puzzle is solved for each step
-
-// Make sure to check in the opposite dir of the head and prioritize the first part of the body if ghere is any there
