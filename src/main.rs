@@ -13,36 +13,64 @@ fn main() {
 fn solution(pieces: Vec<Vec<Vec<char>>>) -> i32 {
     // Handle pieces this time inside of solution fn
     // Meaning loop through the pieces and apply the necessary Functions
-    //
     let mut field = Field::new(20, 10);
-    // Gotta decide if I wanna route every peice through a Piece struct with shape and
-    // symmetrical_check or a type alias
     for piece in pieces {
-        // let piece: Piece = Piece::from(piece);
-        // handle_rotations(piece, field);
+        let piece: Piece = Piece::from(piece);
+        handle_rotations(&piece, &field);
     }
     3
 }
 
-fn handle_rotations() {
+fn handle_rotations(piece: &Piece, field: &Field) {
+    let mut is_symmetrical = is_symmetrical(piece);
+    let mut curr_piece = piece.to_vec();
+    // Optinal stores the number os blocks in the rows of the piece and the Piece itself
+    let mut optimal = (vec![vec!['c']; 0], 0);
+    let nr_of_rotations = if is_symmetrical {2} else {4};
+    for i in 0..nr_of_rotations {
+        handle_positions(piece, field);
+        curr_piece = rotate_90_degrees(&curr_piece);
+    }
 
+}
 
+fn handle_positions(piece: &Piece, field: &Field) {
+    // Upper bound should be width - piece_width + 1
+    for i in 0..piece[0].len() {
+        handle_falling_piece()
+    }
 }
 
 fn rotate_90_degrees(piece: &Piece) -> Piece {
     // let shape = piece.shape;
     let len = piece.len();
     let width = piece[0].len();
-    let mut rotation = vec![vec!['_'; len ]; width];
+    let mut rotation = vec![vec!['_'; len]; width];
     for i in 0..len {
         for j in 0..width {
             let part = piece[i][j];
             let i_offset = len - i - 1;
             rotation[j][i_offset] = part;
-
         }
     }
     rotation
+}
+
+fn is_symmetrical (piece: &Piece) -> bool {
+    let rotated_piece = rotate_90_degrees( &rotate_90_degrees(piece) );
+    if piece.len() != rotated_piece.len() || piece[0].len() != rotated_piece[0].len() {
+        return false; 
+    }
+    // compare the two
+    // for i in 0..piece.len() {
+    //     for j in 0..piece[0].len() {
+    //         if piece[i][j] != rotated_piece[i][j] {
+    //             return false;
+    //         }
+    //     }
+    // }
+    // true
+    piece.eq(&rotated_piece)
 }
 
 fn calculate_score(piece: &Piece, field: &Field) -> u32 {
@@ -66,6 +94,7 @@ impl Field {
 }
 
 type Piece = Vec<Vec<char>>;
+
 // struct Piece {
 //     shape: Vec<Vec<char>>,
 //     symmetrical: bool,
@@ -74,7 +103,7 @@ type Piece = Vec<Vec<char>>;
 //
 // impl From<Vec<Vec<char>>> for Piece {
 //     fn from(shape: Vec<Vec<char>>) -> Self {
-//         Self { shape, symmetrical: false }                  
+//         Self { shape, symmetrical: false }
 //
 //     }
 // }
